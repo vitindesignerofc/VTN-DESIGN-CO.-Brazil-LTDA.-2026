@@ -1,0 +1,19 @@
+{
+  "name": "vtn-site",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "format": "prettier --write \"*.{js,css,html}\" \"js/*.js\" \"netlify/functions/*.js\" \"backend/*.js\"",
+    "format:check": "prettier --check \"*.{js,css,html}\" \"js/*.js\" \"netlify/functions/*.js\" \"backend/*.js\"",
+    "serve": "node serve.js"
+  },
+  "dependencies": {
+    "@netlify/blobs": "^8.0.0"
+  },
+  "devDependencies": {
+    "prettier": "^3.9.10"
+  }
+}

@@ -1,0 +1,17 @@
+﻿# NUNCA commitar secrets
+.env
+.env.local
+.env*.local
+node_modules/
+dist/
+.next/
+*.db
+*.sqlite
+*.log
+.DS_Store
+Thumbs.db
+
+# cópias antigas / backups (não devem ir para o deploy)
+backup/
+*.bak
+supabase-config.js

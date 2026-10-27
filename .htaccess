@@ -1,0 +1,68 @@
+# =========================================================
+#  VITIN Design Co. — configuração de performance para deploy
+#  (Apache / hospedagem compartilhada — ignora em Vercel/Netlify)
+# =========================================================
+
+DirectoryIndex index.html
+
+# ---------- 1) Compressão (gzip) ----------
+# Reduz HTML/CSS/JS em ~70-80% antes de sair do servidor.
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html
+  AddOutputFilterByType DEFLATE text/plain
+  AddOutputFilterByType DEFLATE text/xml
+  AddOutputFilterByType DEFLATE text/css
+  AddOutputFilterByType DEFLATE application/javascript
+  AddOutputFilterByType DEFLATE application/json
+  AddOutputFilterByType DEFLATE image/svg+xml
+  AddOutputFilterByType DEFLATE application/xml
+</IfModule>
+
+# Fallback para hosts sem mod_deflate
+<IfModule mod_mime.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/css
+  AddOutputFilterByType DEFLATE application/javascript image/svg+xml
+</IfModule>
+
+# ---------- 2) Cache do navegador ----------
+# Assets versionados ficam 1 ano; a home sempre atualiza.
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresDefault "access plus 1 week"
+  ExpiresByType text/html "access plus 0 seconds"
+  ExpiresByType text/css "access plus 1 month"
+  ExpiresByType application/javascript "access plus 1 month"
+  ExpiresByType image/svg+xml "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType image/webp "access plus 1 year"
+  ExpiresByType image/x-icon "access plus 1 year"
+  ExpiresByType font/woff2 "access plus 1 year"
+</IfModule>
+
+<IfModule mod_headers.c>
+  Header set Cache-Control "public, max-age=31536000" env=image/png
+  Header set Cache-Control "public, max-age=31536000" env=image/jpeg
+  Header set Cache-Control "public, max-age=31536000" env=image/svg+xml
+  Header set Cache-Control "public, max-age=2592000"  env=text/css
+  Header set Cache-Control "public, max-age=2592000"  env=application/javascript
+  Header set Cache-Control "no-cache" env=text/html
+</IfModule>
+
+# ---------- 3) Headers de segurança (CSP estrita + hardening) ----------
+# O site não usa <script> inline nem atributos on*=,
+# por isso o script-src fica sem 'unsafe-inline'.
+<IfModule mod_headers.c>
+  Header always set Content-Security-Policy "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; media-src 'self' blob: data:; connect-src 'self' https://cdn.jsdelivr.net https://*.supabase.co wss://*.supabase.co; frame-src https://www.youtube.com https://www.youtube-nocookie.com; manifest-src 'self'; upgrade-insecure-requests"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "DENY"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
+  Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+  Header always set Cross-Origin-Opener-Policy "same-origin"
+  Header always set Cross-Origin-Resource-Policy "same-origin"
+  Header always set X-Permitted-Cross-Domain-Policies "none"
+</IfModule>
+
+# ---------- 4) Hash router (#/...) não precisa de rewrite ----------
+# Não adicionar mod_rewrite: as rotas do site são internas ao navegador.
